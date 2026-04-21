@@ -8,6 +8,7 @@ Redis is utilized in the `elasticache/` module for idempotency within the NovaPa
 - **Type:** `cache.t2.micro` (adjust based on expected load)
 
 ### Parameters
+- **Redis Version:** **Y.Y.Y** (update to the latest version)
 - **Persistence:** Enabled (RDB snapshotting)
 - **Snapshotting Frequency:** Every 12 hours
 - **Backup Retention Period:** 7 days
@@ -15,6 +16,10 @@ Redis is utilized in the `elasticache/` module for idempotency within the NovaPa
 ### Security Configuration
 - **VPC:** Integrated within the existing VPC configuration to ensure network isolation.
 - **Security Groups:** Allow inbound traffic from application servers on the Redis port (default is 6379).
+
+## New Features Introduced in Redis Upgrade
+- Enhanced performance and security features from the latest Redis version.
+- Compatibility with new Redis features for optimal resource allocation and scaling.
 
 ## Backup Strategies
 
