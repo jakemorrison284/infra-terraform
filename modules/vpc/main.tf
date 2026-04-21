@@ -1,7 +1,7 @@
 # Updated VPC Configuration
 
 resource "aws_vpc" "novapay" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/20"  # Changed CIDR block for cost efficiency
   enable_dns_hostnames = true
   tags = { Name = "novapay-vpc", Environment = var.environment }
 }
@@ -45,10 +45,13 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id    = aws_subnet.public[0].id
+# NAT Instance for Private Subnets (Cost-effective alternative)
+resource "aws_instance" "nat" {
+  ami           = "ami-0c55b159cbfafe1f0"  # Replace with suitable NAT AMI
+  instance_type = "t3a.micro"
+  subnet_id     = aws_subnet.public[0].id
+  associate_public_ip_address = true
+  # Add EIP attachment resource if needed
 }
 
 # Route Table for Private Subnets
@@ -57,7 +60,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat.id
+    instance_id = aws_instance.nat.id  # Updated to use NAT instance
   }
 }
 
@@ -68,9 +71,9 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Enable VPC Flow Logs
+# Enable VPC Flow Logs with filtering
 resource "aws_flow_log" "vpc_flow_logs" {
   log_group_name = "vpc-flow-logs"
-  traffic_type   = "ALL"
+  traffic_type   = "ACCEPT"  # Changed to log only accepted traffic
   vpc_id         = aws_vpc.novapay.id
 }
