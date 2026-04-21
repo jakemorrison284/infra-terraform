@@ -11,7 +11,7 @@ Redis is utilized in the `elasticache/` module for idempotency within the NovaPa
 - **Redis Version:** **Y.Y.Y** (update to the latest version)
 - **Persistence:** Enabled (RDB snapshotting)
 - **Snapshotting Frequency:** Every 12 hours
-- **Backup Retention Period:** 7 days
+- **Backup Retention Period:** 14 days  
 
 ### Security Configuration
 - **VPC:** Integrated within the existing VPC configuration to ensure network isolation.
@@ -28,16 +28,20 @@ To ensure data durability and recovery for Redis, the following backup strategie
 ### Automated Backups
 - **Enabled:** Yes
 - **Backup Window:** Between 02:00 and 03:00 UTC daily
-- **Number of Retained Backups:** 5 snapshots
+- **Number of Retained Backups:** 10 snapshots
 
 ### Manual Snapshots
-- **Frequency:** As needed, especially before major deployments or changes.
+- **Frequency:** As needed, especially before major deployments or changes. Document the procedure for taking and restoring manual snapshots.
+
+### Testing Recovery Procedures
+- **Frequency:** Conduct recovery testing quarterly to ensure that backup restoration processes meet defined RTO and RPO objectives.
 
 ### Monitoring and Alerts
 - Set up CloudWatch alarms for:
   - Memory usage exceeding 75%
   - CPU utilization exceeding 80%
   - Evictions exceeding a threshold (e.g., 100 per hour)
+  - Backup success/failure notifications.
 
 ## Conclusion
 
