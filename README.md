@@ -1,41 +1,39 @@
-# infra-terraform
+# Redis Configuration and Backup Plan
 
-NovaPay infrastructure-as-code (AWS).
+## Redis Configuration
 
-## Modules
-- `vpc/` — VPC, subnets, security groups
-- `eks/` — Kubernetes cluster
-- `rds/` — PostgreSQL
-- `elasticache/` — Redis for idempotency
+Redis is utilized in the `elasticache/` module for idempotency within the NovaPay infrastructure on AWS. Below is the finalized configuration for Redis:
 
-## Getting Started
+### Instance Type
+- **Type:** `cache.t2.micro` (adjust based on expected load)
 
-To get started with this project, clone the repository and navigate to the appropriate module. Make sure you have the necessary tools installed (Terraform, AWS CLI).
+### Parameters
+- **Persistence:** Enabled (RDB snapshotting)
+- **Snapshotting Frequency:** Every 12 hours
+- **Backup Retention Period:** 7 days
 
-## Prerequisites
-- Terraform 1.0 or higher
-- AWS account with appropriate permissions
+### Security Configuration
+- **VPC:** Integrated within the existing VPC configuration to ensure network isolation.
+- **Security Groups:** Allow inbound traffic from application servers on the Redis port (default is 6379).
 
-## Usage
+## Backup Strategies
 
-Run the following commands to deploy the infrastructure:
+To ensure data durability and recovery for Redis, the following backup strategies are implemented:
 
-1. Initialize Terraform: `terraform init`
-2. Plan the deployment: `terraform plan`
-3. Apply the changes: `terraform apply`
+### Automated Backups
+- **Enabled:** Yes
+- **Backup Window:** Between 02:00 and 03:00 UTC daily
+- **Number of Retained Backups:** 5 snapshots
 
-## Cleanup
+### Manual Snapshots
+- **Frequency:** As needed, especially before major deployments or changes.
 
-To destroy the infrastructure, run: `terraform destroy`
+### Monitoring and Alerts
+- Set up CloudWatch alarms for:
+  - Memory usage exceeding 75%
+  - CPU utilization exceeding 80%
+  - Evictions exceeding a threshold (e.g., 100 per hour)
 
-## Contributing
+## Conclusion
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes.
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a new Pull Request.
-
-## License
-
-This project is licensed under the MIT License.
+This document serves as an essential reference for the Redis configuration and backup strategies employed in the NovaPay infrastructure. Regular reviews and updates should be conducted to ensure optimal performance and reliability.
