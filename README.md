@@ -7,6 +7,7 @@ NovaPay infrastructure-as-code (AWS).
 - `eks/` — Kubernetes cluster
 - `rds/` — PostgreSQL
 - `elasticache/` — Redis for idempotency
+- `s3/` — S3 bucket for static assets (newly added)
 
 ## Getting Started
 
