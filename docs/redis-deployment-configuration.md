@@ -6,7 +6,7 @@ This document outlines the configuration and deployment procedures for the Redis
 ## Redis Configuration
 
 ### Version
-- Upgraded Redis version from **X.X.X** to **Y.Y.Y**.
+- Upgraded Redis version from **6.2.0** to **7.0.0**.
 
 ### Configuration Changes
 - Updated the Redis version references in configuration files.
@@ -15,8 +15,10 @@ This document outlines the configuration and deployment procedures for the Redis
 - Documentation in the README has been updated to reflect the new Redis version and its features.
 
 ### Backup Strategies
-- Regular backups should be scheduled to ensure data safety.
-- Utilize Redis persistence options (RDB and AOF) for data recovery.
+- Regular backups should be scheduled to ensure data safety. It's recommended to perform daily backups.
+- Utilize Redis persistence options:
+  - **RDB**: Configure RDB snapshots at regular intervals.
+  - **AOF**: Enable append-only files for real-time data recovery.
 
 ## Deployment Steps
 1. Clone the repository:
@@ -37,7 +39,7 @@ This document outlines the configuration and deployment procedures for the Redis
 ## Rollback Procedures
 In the event of any critical issues during or after the upgrade, the following rollback procedures should be followed:
 
-1. **Revert Configuration Changes**: Restore the configuration changes in the **main.tf** file to the previous version (X.X.X).
+1. **Revert Configuration Changes**: Restore the configuration changes in the **main.tf** file to the previous version (6.2.0).
 2. **Redeploy Infrastructure**: Execute the Terraform commands to redeploy the infrastructure with the previous Redis version:
    ```bash
    terraform apply
@@ -47,4 +49,4 @@ In the event of any critical issues during or after the upgrade, the following r
 
 ### Testing
 - All changes will be validated in a staging environment before merging to ensure functionality and performance.
-- Automated tests will be run to verify that all existing features continue to work as expected.
+- Automated tests will be run using **JUnit and Terraform Validation** to verify that all existing features continue to work as expected.
