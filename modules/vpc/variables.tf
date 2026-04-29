@@ -10,17 +10,17 @@ variable "public_subnets_count" {
   default     = 2
   validation {
     condition     = (var.public_subnets_count >= 1 && var.public_subnets_count <= 5)
-    error_message = "The number of public subnets must be between 1 and 5."
+    error_message = "The number of public subnets must be between 1 and 5. Please specify a valid count."
   }
 }
 
 variable "private_subnets_count" {
   description = "Number of private subnets (must be greater than 0)"
   type        = number
-  default     = 1
+  default     = 2
   validation {
     condition     = (var.private_subnets_count > 0)
-    error_message = "The number of private subnets must be greater than 0."
+    error_message = "The number of private subnets must be greater than 0. Please specify a count of at least 1."
   }
 }
 
@@ -30,6 +30,6 @@ variable "vpc_cidr_block" {
   default     = "10.0.0.0/22"
   validation {
     condition     = can(regex("^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.vpc_cidr_block))
-    error_message = "The CIDR block format is invalid. Please use CIDR notation (e.g., 10.0.0.0/22)."
+    error_message = "The CIDR block format is invalid. Please use CIDR notation (e.g., 10.0.0.0/22) and ensure it does not overlap with existing CIDR blocks."
   }
 }
