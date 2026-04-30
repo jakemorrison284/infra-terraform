@@ -63,5 +63,17 @@ variable "nat_gateway_count" {
 variable "create_nat_gateways" {
   description = "Whether to create NAT Gateways"
   type        = bool
-  default     = true
+  default     = false
+}
+
+variable "flow_log_group_name" {
+  description = "Name of the CloudWatch log group for VPC flow logs"
+  type        = string
+  default     = "novapay-vpc-flow-logs"
+}
+
+variable "flow_log_traffic_type" {
+  description = "Type of traffic to log for VPC flow logs"
+  type        = string
+  default     = "ALL"
 }
