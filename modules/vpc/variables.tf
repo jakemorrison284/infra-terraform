@@ -91,7 +91,7 @@ variable "flow_log_traffic_type" {
 }
 
 variable "nat_gateway_count" {
-  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
+  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1). This value must be greater than 0 and less than or equal to the number of public subnets."
   type        = number
   default     = 1
   validation {
@@ -101,7 +101,7 @@ variable "nat_gateway_count" {
 }
 
 variable "create_nat_gateways" {
-  description = "Whether to create NAT Gateways"
+  description = "Whether to create NAT Gateways. Set to false to use alternative NAT solutions for cost optimization."
   type        = bool
   default     = true
 }
