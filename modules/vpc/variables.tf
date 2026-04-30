@@ -80,6 +80,12 @@ variable "flow_log_group_name" {
   default     = "/aws/vpc/flow-logs"
 }
 
+variable "flow_log_retention_days" {
+  description = "Retention period for CloudWatch Log Group in days"
+  type        = number
+  default     = 30
+}
+
 variable "flow_log_traffic_type" {
   description = "The type of traffic to log (ACCEPT, REJECT, ALL)"
   type        = string
