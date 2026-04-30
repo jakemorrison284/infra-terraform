@@ -123,7 +123,7 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Enable or disable VPC Flow Logs based on variable
+# Enable or disable VPC Flow Logs based on variable (default now false for cost saving)
 resource "aws_flow_log" "vpc_flow_logs" {
   count          = var.enable_flow_logs ? 1 : 0
   log_group_name = var.flow_log_group_name
