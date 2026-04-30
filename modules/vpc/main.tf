@@ -16,7 +16,7 @@ resource "aws_subnet" "public" {
   count                   = var.public_subnets_count
   vpc_id                  = aws_vpc.novapay.id
   cidr_block              = var.public_subnets[count.index]
-  availability_zone       = var.availability_zones[count.index]
+  availability_zone       = var.public_availability_zones[count.index]
   map_public_ip_on_launch = true
   tags = {
     Name        = "novapay-public-subnet-${count.index}"
@@ -34,7 +34,7 @@ resource "aws_subnet" "private" {
   count             = var.private_subnets_count
   vpc_id            = aws_vpc.novapay.id
   cidr_block        = var.private_subnets[count.index]
-  availability_zone = var.availability_zones[count.index]
+  availability_zone = var.private_availability_zones[count.index]
   tags = {
     Name        = "novapay-private-subnet-${count.index}"
     Environment = var.environment
@@ -127,7 +127,7 @@ resource "aws_route_table" "private" {
   }
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = var.create_nat_gateways ? aws_nat_gateway.nat[count.index % var.nat_gateway_count].id : null
   }
 }
@@ -139,10 +139,24 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
+# CloudWatch Log Group for Flow Logs with retention
+resource "aws_cloudwatch_log_group" "flow_logs" {
+  name              = var.flow_log_group_name
+  retention_in_days = 30
+  tags = {
+    Name        = "novapay-flow-logs"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
+  }
+}
+
 # Enable or disable VPC Flow Logs based on variable
 resource "aws_flow_log" "vpc_flow_logs" {
   count          = var.enable_flow_logs ? 1 : 0
-  log_group_name = var.flow_log_group_name
+  log_group_name = aws_cloudwatch_log_group.flow_logs.name
   traffic_type   = var.flow_log_traffic_type
   vpc_id         = aws_vpc.novapay.id
   tags = {
