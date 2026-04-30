@@ -48,6 +48,16 @@ variable "vpc_cidr_block" {
   }
 }
 
+variable "secondary_cidr_blocks" {
+  description = "List of secondary CIDR blocks for VPC expansion."
+  type        = list(string)
+  default     = []
+  validation {
+    condition     = alltrue([for cidr in var.secondary_cidr_blocks : cidrnet(cidr) not in cidrnet(var.vpc_cidr_block)])
+    error_message = "Secondary CIDR blocks must not overlap with primary VPC CIDR block."
+  }
+}
+
 variable "availability_zones" {
   description = "List of availability zones for subnets. Example: [\"us-east-1a\", \"us-east-1b\"]"
   type        = list(string)
@@ -81,12 +91,12 @@ variable "flow_log_traffic_type" {
 }
 
 variable "nat_gateway_count" {
-  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
+  description = "Number of NAT Gateways to create. Should match the number of availability zones for high availability."
   type        = number
-  default     = 1
+  default     = 2
   validation {
-    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count
-    error_message = "nat_gateway_count must be greater than 0 and less than or equal to public_subnets_count"
+    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= length(var.availability_zones)
+    error_message = "nat_gateway_count must be greater than 0 and less than or equal to the number of availability zones."
   }
 }
 
@@ -94,6 +104,12 @@ variable "create_nat_gateways" {
   description = "Whether to create NAT Gateways"
   type        = bool
   default     = true
+}
+
+variable "allow_ssh_cidr_blocks" {
+  description = "List of CIDR blocks allowed to access instances via SSH."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
 variable "cost_center" {
