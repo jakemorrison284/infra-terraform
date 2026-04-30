@@ -11,6 +11,12 @@ resource "aws_vpc" "novapay" {
   }
 }
 
+resource "aws_vpc_ipv4_cidr_block_association" "secondary" {
+  count      = length(var.secondary_cidr_blocks)
+  vpc_id     = aws_vpc.novapay.id
+  cidr_block = var.secondary_cidr_blocks[count.index]
+}
+
 # Public Subnets
 resource "aws_subnet" "public" {
   count                   = var.public_subnets_count
@@ -147,6 +153,37 @@ resource "aws_flow_log" "vpc_flow_logs" {
   vpc_id         = aws_vpc.novapay.id
   tags = {
     Name        = "novapay-flow-logs"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
+  }
+}
+
+resource "aws_security_group" "private_sg" {
+  name        = "novapay-private-sg"
+  description = "Security group for private subnet instances"
+  vpc_id      = aws_vpc.novapay.id
+
+  ingress {
+    description = "Allow SSH from allowed CIDRs"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.allow_ssh_cidr_blocks
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "novapay-private-sg"
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
