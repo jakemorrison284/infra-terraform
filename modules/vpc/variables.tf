@@ -49,9 +49,9 @@ variable "vpc_cidr_block" {
 }
 
 variable "availability_zones" {
-  description = "List of availability zones for subnets"
+  description = "List of availability zones for subnets. Example: [\"us-east-1a\", \"us-east-1b\"]"
   type        = list(string)
-  default     = []
+  default     = ["us-east-1a", "us-east-1b"]
   validation {
     condition     = length(var.availability_zones) == var.public_subnets_count || length(var.availability_zones) == var.private_subnets_count || length(var.availability_zones) == 0
     error_message = "The number of availability zones must match either public_subnets_count or private_subnets_count, or be empty."
@@ -94,4 +94,16 @@ variable "create_nat_gateways" {
   description = "Whether to create NAT Gateways"
   type        = bool
   default     = true
+}
+
+variable "cost_center" {
+  description = "Cost center tag for resource allocation and billing"
+  type        = string
+  default     = "default-cost-center"
+}
+
+variable "project" {
+  description = "Project tag for resource organization"
+  type        = string
+  default     = "default-project"
 }
