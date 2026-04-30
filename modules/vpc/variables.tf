@@ -59,3 +59,9 @@ variable "nat_gateway_count" {
     error_message = "nat_gateway_count must be greater than 0 and less than or equal to public_subnets_count"
   }
 }
+
+variable "enable_nat_gateway" {
+  description = "Enable or disable NAT Gateways"
+  type        = bool
+  default     = true
+}
