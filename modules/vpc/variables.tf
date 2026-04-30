@@ -86,6 +86,10 @@ variable "flow_log_retention_days" {
   description = "Retention period for CloudWatch Log Group in days"
   type        = number
   default     = 30
+  validation {
+    condition     = var.flow_log_retention_days > 0 && contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653], var.flow_log_retention_days)
+    error_message = "flow_log_retention_days must be a positive number and one of the supported retention periods: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653."
+  }
 }
 
 variable "flow_log_traffic_type" {
@@ -103,8 +107,8 @@ variable "nat_gateway_count" {
   type        = number
   default     = 1
   validation {
-    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count && var.nat_gateway_count <= 3
-    error_message = "nat_gateway_count must be greater than 0, less than or equal to public_subnets_count, and no more than 3."
+    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count && var.nat_gateway_count <= 3 && floor(var.nat_gateway_count) == var.nat_gateway_count
+    error_message = "nat_gateway_count must be a positive integer, less than or equal to public_subnets_count, and no more than 3."
   }
 }
 
