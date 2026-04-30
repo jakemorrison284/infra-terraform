@@ -6,6 +6,8 @@ resource "aws_vpc" "novapay" {
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -22,6 +24,8 @@ resource "aws_subnet" "public" {
     Module      = "VPC"
     Tier        = "Public"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -37,6 +41,8 @@ resource "aws_subnet" "private" {
     Module      = "VPC"
     Tier        = "Private"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -48,6 +54,8 @@ resource "aws_internet_gateway" "igw" {
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -60,6 +68,8 @@ resource "aws_route_table" "public" {
     Module      = "VPC"
     Tier        = "Public"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 
   route {
@@ -85,6 +95,8 @@ resource "aws_nat_gateway" "nat" {
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -96,6 +108,8 @@ resource "aws_eip" "nat" {
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
 
@@ -108,6 +122,8 @@ resource "aws_route_table" "private" {
     Module      = "VPC"
     Tier        = "Private"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 
   route {
@@ -134,5 +150,7 @@ resource "aws_flow_log" "vpc_flow_logs" {
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+    CostCenter  = var.cost_center
+    Project     = var.project
   }
 }
