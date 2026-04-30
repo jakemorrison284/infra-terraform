@@ -46,3 +46,41 @@ To ensure data durability and recovery for Redis, the following backup strategie
 ## Conclusion
 
 This document serves as an essential reference for the Redis configuration and backup strategies employed in the NovaPay infrastructure. Regular reviews and updates should be conducted to ensure optimal performance and reliability.
+
+---
+
+## Rollback Documentation for VPC Module Enhancements
+
+This section documents the rollback procedure for recent enhancements made to the VPC module in the infra-terraform repository.
+
+### Rollback Commit SHAs and Description
+- `b3566cec4bbeb8cdf3912762c51330c51f3f7f73`: Rollback VPC module main.tf to previous stable state
+- `0f5fb3e924968c1f4d513b4bf6d50abd436ed60e`: Rollback VPC module variables.tf to previous stable state
+- `560e7b54d2453d320a3d101bc162f83de3328bbe`: Merge pull request for rollback of VPC module enhancements
+
+### Stable State Reference
+The stable state of the VPC module is represented by the above commit SHAs. Rolling back to these commits ensures the infrastructure returns to a known stable configuration.
+
+### Rollback Procedure
+1. Checkout the stable commit or rollback branch:
+   ```bash
+   git checkout b3566cec4bbeb8cdf3912762c51330c51f3f7f73
+   git checkout 0f5fb3e924968c1f4d513b4bf6d50abd436ed60e
+   ```
+2. Apply the Terraform configuration:
+   ```bash
+   terraform init
+   terraform plan
+   terraform apply
+   ```
+3. Verify infrastructure is restored to the stable state.
+
+### Validation Steps
+- Confirm all Terraform plan outputs match expected stable infrastructure.
+- Check AWS console for expected VPC, subnets, route tables, and NAT gateways.
+- Run integration and smoke tests on dependent services.
+- Monitor logs and alerts for any anomalies post-rollback.
+
+---
+
+For any questions or issues, please contact the infrastructure team.
