@@ -85,7 +85,7 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets (reduced count and conditional creation)
+# NAT Gateway for Private Subnets (conditional creation and count)
 resource "aws_nat_gateway" "nat" {
   count         = var.create_nat_gateways ? var.nat_gateway_count : 0
   allocation_id = aws_eip.nat[count.index].id
@@ -113,7 +113,7 @@ resource "aws_eip" "nat" {
   }
 }
 
-# Route Table for Private Subnets (updated to use mod to map NAT Gateway index, conditional NAT Gateway)
+# Route Table for Private Subnets
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.novapay.id
   tags = {
@@ -142,7 +142,7 @@ resource "aws_route_table_association" "private" {
 # CloudWatch Log Group for Flow Logs with retention
 resource "aws_cloudwatch_log_group" "flow_logs" {
   name              = var.flow_log_group_name
-  retention_in_days = 30
+  retention_in_days = var.flow_log_retention_days
   tags = {
     Name        = "novapay-flow-logs"
     Environment = var.environment
@@ -168,3 +168,4 @@ resource "aws_flow_log" "vpc_flow_logs" {
     Project     = var.project
   }
 }
+
