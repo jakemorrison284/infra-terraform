@@ -48,13 +48,23 @@ variable "vpc_cidr_block" {
   }
 }
 
-variable "availability_zones" {
-  description = "List of availability zones for subnets. Example: [\"us-east-1a\", \"us-east-1b\"]"
+variable "public_availability_zones" {
+  description = "List of availability zones for public subnets"
   type        = list(string)
   default     = ["us-east-1a", "us-east-1b"]
   validation {
-    condition     = length(var.availability_zones) == var.public_subnets_count || length(var.availability_zones) == var.private_subnets_count || length(var.availability_zones) == 0
-    error_message = "The number of availability zones must match either public_subnets_count or private_subnets_count, or be empty."
+    condition     = length(var.public_availability_zones) == var.public_subnets_count
+    error_message = "The number of public availability zones must match public_subnets_count."
+  }
+}
+
+variable "private_availability_zones" {
+  description = "List of availability zones for private subnets"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
+  validation {
+    condition     = length(var.private_availability_zones) == var.private_subnets_count
+    error_message = "The number of private availability zones must match private_subnets_count."
   }
 }
 
@@ -73,7 +83,7 @@ variable "flow_log_group_name" {
 variable "flow_log_traffic_type" {
   description = "The type of traffic to log (ACCEPT, REJECT, ALL)"
   type        = string
-  default     = "ALL"
+  default     = "ACCEPT"
   validation {
     condition     = contains(["ACCEPT", "REJECT", "ALL"], var.flow_log_traffic_type)
     error_message = "flow_log_traffic_type must be one of: ACCEPT, REJECT, ALL"
