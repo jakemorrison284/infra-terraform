@@ -15,7 +15,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.novapay.id
   cidr_block              = var.public_subnets[count.index]
   availability_zone       = var.availability_zones[count.index]
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = var.map_public_ip_on_launch
   tags = {
     Name        = "novapay-public-subnet-${count.index}"
     Environment = var.environment
@@ -77,11 +77,11 @@ resource "aws_route_table_association" "public" {
 
 # NAT Gateway for Private Subnets
 resource "aws_nat_gateway" "nat" {
-  count         = length(var.availability_zones)
-  allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.public[count.index].id
+  count         = var.nat_gateway_count
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.public[0].id
   tags = {
-    Name        = "novapay-nat-gw-${count.index}"
+    Name        = "novapay-nat-gw-0"
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
@@ -89,10 +89,10 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_eip" "nat" {
-  count = length(var.availability_zones)
+  count = var.nat_gateway_count
   vpc   = true
   tags = {
-    Name        = "novapay-nat-eip-${count.index}"
+    Name        = "novapay-nat-eip-0"
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
@@ -112,7 +112,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat[count.index].id
+    nat_gateway_id = aws_nat_gateway.nat[0].id
   }
 }
 
@@ -125,9 +125,11 @@ resource "aws_route_table_association" "private" {
 
 # Enable VPC Flow Logs with filtering
 resource "aws_flow_log" "vpc_flow_logs" {
+  count          = var.enable_vpc_flow_logs ? 1 : 0
   log_group_name = var.flow_log_group_name
   traffic_type   = var.flow_log_traffic_type
   vpc_id         = aws_vpc.novapay.id
+  retention_in_days = var.vpc_flow_log_retention_days
   tags = {
     Name        = "novapay-flow-logs"
     Environment = var.environment
