@@ -99,7 +99,7 @@ resource "aws_eip" "nat" {
   }
 }
 
-# Route Table for Private Subnets (updated to use mod to map NAT Gateway index, conditional NAT Gateway)
+# Route Table for Private Subnets (use nat_gateway_mapping if provided, else fallback to mod mapping)
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.novapay.id
   tags = {
@@ -112,7 +112,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = var.create_nat_gateways ? aws_nat_gateway.nat[count.index % var.nat_gateway_count].id : null
+    nat_gateway_id = var.create_nat_gateways ? (length(var.nat_gateway_mapping) > 0 ? aws_nat_gateway.nat[var.nat_gateway_mapping[count.index]].id : aws_nat_gateway.nat[count.index % var.nat_gateway_count].id) : null
   }
 }
 
