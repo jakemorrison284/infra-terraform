@@ -35,7 +35,7 @@ variable "private_subnets_count" {
 }
 
 variable "vpc_cidr_block" {
-  description = "CIDR block for the VPC (should follow CIDR notation and not overlap with existing CIDR blocks)"
+  description = "CIDR block for the VPC (should follow CIDR notation and not overlap with existing CIDR blocks). Choose size based on IP needs, e.g., /24 for small, /22 for medium, /16 for large environments."
   type        = string
   default     = "10.0.0.0/22"
   validation {
@@ -51,7 +51,7 @@ variable "enable_flow_logs" {
 }
 
 variable "nat_gateway_count" {
-  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
+  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1). Should not exceed public_subnets_count."
   type        = number
   default     = 1
   validation {
@@ -64,4 +64,14 @@ variable "create_nat_gateways" {
   description = "Whether to create NAT Gateways"
   type        = bool
   default     = true
+}
+
+variable "nat_gateway_mapping" {
+  description = "Optional list to explicitly map NAT Gateways to private subnets to optimize costs. Length should match private_subnets_count. Use index of NAT Gateway for each private subnet."
+  type        = list(number)
+  default     = []
+  validation {
+    condition     = length(var.nat_gateway_mapping) == 0 || length(var.nat_gateway_mapping) == var.private_subnets_count
+    error_message = "nat_gateway_mapping length must be zero or equal to private_subnets_count."
+  }
 }
