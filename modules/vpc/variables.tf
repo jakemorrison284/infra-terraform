@@ -1,6 +1,6 @@
 variable "private_subnets" {
   type        = list(string)
-  description = "List of CIDR blocks for private subnets"
+  description = "List of CIDR blocks for private subnets within the VPC"
   validation {
     condition     = alltrue([for cidr in var.private_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
     error_message = "All private subnet CIDR blocks must be within the VPC CIDR block."
@@ -9,7 +9,7 @@ variable "private_subnets" {
 
 variable "public_subnets" {
   type        = list(string)
-  description = "List of CIDR blocks for public subnets"
+  description = "List of CIDR blocks for public subnets within the VPC"
   validation {
     condition     = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
     error_message = "The length of public_subnets list must match public_subnets_count and all CIDR blocks must be within the VPC CIDR block."
