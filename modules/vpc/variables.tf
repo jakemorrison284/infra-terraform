@@ -74,6 +74,10 @@ variable "flow_log_group_name" {
   description = "The name of the CloudWatch Log Group for VPC Flow Logs"
   type        = string
   default     = "/aws/vpc/flow-logs"
+  validation {
+    condition     = length(trimspace(var.flow_log_group_name)) > 0
+    error_message = "flow_log_group_name cannot be empty"
+  }
 }
 
 variable "flow_log_retention_days" {
@@ -112,30 +116,50 @@ variable "cost_center" {
   description = "Cost center tag for resource allocation and billing"
   type        = string
   default     = "default-cost-center"
+  validation {
+    condition     = length(trimspace(var.cost_center)) > 0
+    error_message = "cost_center cannot be empty"
+  }
 }
 
 variable "project" {
   description = "Project tag for resource organization"
   type        = string
   default     = "default-project"
+  validation {
+    condition     = length(trimspace(var.project)) > 0
+    error_message = "project cannot be empty"
+  }
 }
 
 variable "region" {
   description = "AWS region for resource deployment"
   type        = string
   default     = "us-east-1"
+  validation {
+    condition     = length(trimspace(var.region)) > 0
+    error_message = "region cannot be empty"
+  }
 }
 
 variable "environment" {
   description = "Environment tag for resource organization"
   type        = string
   default     = "dev"
+  validation {
+    condition     = length(trimspace(var.environment)) > 0
+    error_message = "environment cannot be empty"
+  }
 }
 
 variable "owner" {
   description = "Owner tag for resource management"
   type        = string
   default     = "unknown"
+  validation {
+    condition     = length(trimspace(var.owner)) > 0
+    error_message = "owner cannot be empty"
+  }
 }
 
 variable "public_ip_on_launch" {
