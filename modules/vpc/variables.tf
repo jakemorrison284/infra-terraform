@@ -4,6 +4,16 @@ variable "private_subnets" {
   default     = ["10.0.3.0/24"] 
 }
 
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of CIDR blocks for public subnets"
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+  validation {
+    condition     = length(var.public_subnets) == var.public_subnets_count
+    error_message = "The length of public_subnets list must match public_subnets_count."
+  }
+}
+
 variable "public_subnets_count" {
   description = "Number of public subnets (must be between 1 and 5)"
   type        = number
