@@ -1,7 +1,7 @@
 variable "private_subnets" {
   type        = list(string)
   description = "List of CIDR blocks for private subnets"
-  default     = ["10.0.3.0/24"] 
+  default     = ["10.0.3.0/24", "10.0.4.0/24"] 
 }
 
 variable "public_subnets" {
@@ -47,7 +47,7 @@ variable "vpc_cidr_block" {
 variable "enable_flow_logs" {
   description = "Enable or disable VPC Flow Logs"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "nat_gateway_count" {
