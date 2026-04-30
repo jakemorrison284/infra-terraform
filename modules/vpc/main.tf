@@ -75,9 +75,23 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets
+# NAT Gateways and NAT Instances
+
+# Elastic IPs for NAT Gateways
+resource "aws_eip" "nat" {
+  count = var.nat_strategy == "gateway" ? var.nat_gateway_count : 0
+  vpc   = true
+  tags = {
+    Name        = "novapay-nat-eip-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
+}
+
+# NAT Gateways
 resource "aws_nat_gateway" "nat" {
-  count         = length(var.availability_zones)
+  count         = var.nat_strategy == "gateway" ? var.nat_gateway_count : 0
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   tags = {
@@ -88,11 +102,59 @@ resource "aws_nat_gateway" "nat" {
   }
 }
 
-resource "aws_eip" "nat" {
-  count = length(var.availability_zones)
-  vpc   = true
+# NAT Instances Security Group
+resource "aws_security_group" "nat_instance_sg" {
+  count       = var.nat_strategy == "instance" ? var.nat_gateway_count : 0
+  name        = "novapay-nat-instance-sg-${count.index}"
+  description = "Security group for NAT instances"
+  vpc_id      = aws_vpc.novapay.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name        = "novapay-nat-eip-${count.index}"
+    Name        = "novapay-nat-instance-sg-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
+}
+
+# NAT Instances
+resource "aws_instance" "nat_instance" {
+  count             = var.nat_strategy == "instance" ? var.nat_gateway_count : 0
+  ami               = var.nat_instance_ami
+  instance_type     = var.nat_instance_type
+  subnet_id         = aws_subnet.public[count.index].id
+  source_dest_check = false
+  security_groups   = [aws_security_group.nat_instance_sg[count.index].name]
+
+  tags = {
+    Name        = "novapay-nat-instance-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
+}
+
+# Elastic IPs for NAT Instances
+resource "aws_eip" "nat_instance_eip" {
+  count = var.nat_strategy == "instance" ? var.nat_gateway_count : 0
+  instance = aws_instance.nat_instance[count.index].id
+  vpc      = true
+  tags = {
+    Name        = "novapay-nat-instance-eip-${count.index}"
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
@@ -111,8 +173,9 @@ resource "aws_route_table" "private" {
   }
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat[count.index].id
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = var.nat_strategy == "gateway" ? aws_nat_gateway.nat[count.index % var.nat_gateway_count].id : null
+    network_interface_id = var.nat_strategy == "instance" ? aws_instance.nat_instance[count.index % var.nat_gateway_count].primary_network_interface_id : null
   }
 }
 
