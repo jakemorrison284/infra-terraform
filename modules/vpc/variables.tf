@@ -1,9 +1,8 @@
 variable "private_subnets" {
   type        = list(string)
   description = "List of CIDR blocks for private subnets"
-  default     = ["10.0.3.0/24", "10.0.4.0/24"] 
   validation {
-    condition     = alltrue([for cidr in var.private_subnets : cidrnet(cidr) in cidrnet(var.vpc_cidr_block)])
+    condition     = alltrue([for cidr in var.private_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
     error_message = "All private subnet CIDR blocks must be within the VPC CIDR block."
   }
 }
@@ -11,9 +10,8 @@ variable "private_subnets" {
 variable "public_subnets" {
   type        = list(string)
   description = "List of CIDR blocks for public subnets"
-  default     = ["10.0.1.0/24", "10.0.2.0/24"]
   validation {
-    condition     = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : cidrnet(cidr) in cidrnet(var.vpc_cidr_block)])
+    condition     = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
     error_message = "The length of public_subnets list must match public_subnets_count and all CIDR blocks must be within the VPC CIDR block."
   }
 }
@@ -51,7 +49,6 @@ variable "vpc_cidr_block" {
 variable "public_availability_zones" {
   description = "List of availability zones for public subnets"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
   validation {
     condition     = length(var.public_availability_zones) == var.public_subnets_count
     error_message = "The number of public availability zones must match public_subnets_count."
@@ -61,7 +58,6 @@ variable "public_availability_zones" {
 variable "private_availability_zones" {
   description = "List of availability zones for private subnets"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
   validation {
     condition     = length(var.private_availability_zones) == var.private_subnets_count
     error_message = "The number of private availability zones must match private_subnets_count."
@@ -122,4 +118,28 @@ variable "project" {
   description = "Project tag for resource organization"
   type        = string
   default     = "default-project"
+}
+
+variable "region" {
+  description = "AWS region for resource deployment"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "environment" {
+  description = "Environment tag for resource organization"
+  type        = string
+  default     = "dev"
+}
+
+variable "owner" {
+  description = "Owner tag for resource management"
+  type        = string
+  default     = "unknown"
+}
+
+variable "public_ip_on_launch" {
+  description = "Whether to assign public IPs on launch for public subnets"
+  type        = bool
+  default     = true
 }
