@@ -39,7 +39,23 @@ variable "vpc_cidr_block" {
   type        = string
   default     = "10.0.0.0/22"
   validation {
-    condition     = can(regex("^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.vpc_cidr_block))
+    condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.vpc_cidr_block))
     error_message = "The CIDR block format is invalid. Please use CIDR notation (e.g., 10.0.0.0/22) and ensure it does not overlap with existing CIDR blocks."
+  }
+}
+
+variable "enable_flow_logs" {
+  description = "Enable or disable VPC Flow Logs"
+  type        = bool
+  default     = false
+}
+
+variable "nat_gateway_count" {
+  description = "Number of NAT Gateways to create"
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count
+    error_message = "nat_gateway_count must be greater than 0 and less than or equal to public_subnets_count"
   }
 }
