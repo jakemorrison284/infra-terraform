@@ -51,7 +51,7 @@ variable "enable_flow_logs" {
 }
 
 variable "nat_gateway_count" {
-  description = "Number of NAT Gateways to create"
+  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
   type        = number
   default     = 1
   validation {
