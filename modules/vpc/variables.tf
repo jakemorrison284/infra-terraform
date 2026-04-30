@@ -41,7 +41,7 @@ variable "private_subnets_count" {
 variable "vpc_cidr_block" {
   description = "CIDR block for the VPC (should follow CIDR notation and not overlap with existing CIDR blocks)"
   type        = string
-  default     = "10.0.0.0/22"
+  default     = "10.0.0.0/20"
   validation {
     condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", var.vpc_cidr_block))
     error_message = "The CIDR block format is invalid. Please use CIDR notation (e.g., 10.0.0.0/22) and ensure it does not overlap with existing CIDR blocks."
@@ -83,7 +83,7 @@ variable "flow_log_group_name" {
 variable "flow_log_traffic_type" {
   description = "The type of traffic to log (ACCEPT, REJECT, ALL)"
   type        = string
-  default     = "ACCEPT"
+  default     = "ALL"
   validation {
     condition     = contains(["ACCEPT", "REJECT", "ALL"], var.flow_log_traffic_type)
     error_message = "flow_log_traffic_type must be one of: ACCEPT, REJECT, ALL"
@@ -93,7 +93,7 @@ variable "flow_log_traffic_type" {
 variable "nat_gateway_count" {
   description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
   type        = number
-  default     = 1
+  default     = 2
   validation {
     condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count
     error_message = "nat_gateway_count must be greater than 0 and less than or equal to public_subnets_count"
@@ -104,6 +104,12 @@ variable "create_nat_gateways" {
   description = "Whether to create NAT Gateways"
   type        = bool
   default     = true
+}
+
+variable "environment" {
+  description = "Environment tag for resource identification"
+  type        = string
+  default     = "dev"
 }
 
 variable "cost_center" {
