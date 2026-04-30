@@ -51,7 +51,7 @@ variable "enable_flow_logs" {
 }
 
 variable "nat_gateway_count" {
-  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1)."
+  description = "Number of NAT Gateways to create. To reduce costs, keep this as low as possible (default 1). It's recommended to use a single NAT Gateway for multiple private subnets if traffic allows."
   type        = number
   default     = 1
   validation {
@@ -61,7 +61,7 @@ variable "nat_gateway_count" {
 }
 
 variable "create_nat_gateways" {
-  description = "Whether to create NAT Gateways"
+  description = "Whether to create NAT Gateways. Disable if private subnets do not require internet access to save costs."
   type        = bool
   default     = true
 }
