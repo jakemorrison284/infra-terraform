@@ -2,6 +2,10 @@ variable "private_subnets" {
   type        = list(string)
   description = "List of CIDR blocks for private subnets"
   default     = ["10.0.3.0/24", "10.0.4.0/24"] 
+  validation {
+    condition     = alltrue([for cidr in var.private_subnets : cidrnet(cidr) in cidrnet(var.vpc_cidr_block)])
+    error_message = "All private subnet CIDR blocks must be within the VPC CIDR block."
+  }
 }
 
 variable "public_subnets" {
@@ -9,8 +13,8 @@ variable "public_subnets" {
   description = "List of CIDR blocks for public subnets"
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
   validation {
-    condition     = length(var.public_subnets) == var.public_subnets_count
-    error_message = "The length of public_subnets list must match public_subnets_count."
+    condition     = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : cidrnet(cidr) in cidrnet(var.vpc_cidr_block)])
+    error_message = "The length of public_subnets list must match public_subnets_count and all CIDR blocks must be within the VPC CIDR block."
   }
 }
 
@@ -44,10 +48,36 @@ variable "vpc_cidr_block" {
   }
 }
 
+variable "availability_zones" {
+  description = "List of availability zones for subnets"
+  type        = list(string)
+  default     = []
+  validation {
+    condition     = length(var.availability_zones) == var.public_subnets_count || length(var.availability_zones) == var.private_subnets_count || length(var.availability_zones) == 0
+    error_message = "The number of availability zones must match either public_subnets_count or private_subnets_count, or be empty."
+  }
+}
+
 variable "enable_flow_logs" {
   description = "Enable or disable VPC Flow Logs"
   type        = bool
   default     = true
+}
+
+variable "flow_log_group_name" {
+  description = "The name of the CloudWatch Log Group for VPC Flow Logs"
+  type        = string
+  default     = "/aws/vpc/flow-logs"
+}
+
+variable "flow_log_traffic_type" {
+  description = "The type of traffic to log (ACCEPT, REJECT, ALL)"
+  type        = string
+  default     = "ALL"
+  validation {
+    condition     = contains(["ACCEPT", "REJECT", "ALL"], var.flow_log_traffic_type)
+    error_message = "flow_log_traffic_type must be one of: ACCEPT, REJECT, ALL"
+  }
 }
 
 variable "nat_gateway_count" {
