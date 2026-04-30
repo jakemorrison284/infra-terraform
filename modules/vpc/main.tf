@@ -75,9 +75,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets (reduced count)
+# NAT Gateway for Private Subnets (reduced count, toggle enabled)
 resource "aws_nat_gateway" "nat" {
-  count         = var.nat_gateway_count
+  count         = var.enable_nat_gateway ? var.nat_gateway_count : 0
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   tags = {
@@ -89,13 +89,16 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_eip" "nat" {
-  count = var.nat_gateway_count
+  count = var.enable_nat_gateway ? var.nat_gateway_count : 0
   vpc   = true
   tags = {
     Name        = "novapay-nat-eip-${count.index}"
     Environment = var.environment
     Module      = "VPC"
     Owner       = var.owner
+  }
+  lifecycle {
+    prevent_destroy = false
   }
 }
 
