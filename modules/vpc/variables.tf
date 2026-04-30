@@ -47,20 +47,20 @@ variable "vpc_cidr_block" {
 }
 
 variable "public_availability_zones" {
-  description = "List of availability zones for public subnets"
+  description = "List of availability zones for public subnets. Must be valid AWS availability zones (e.g., us-east-1a, us-east-1b)."
   type        = list(string)
   validation {
-    condition     = length(var.public_availability_zones) == var.public_subnets_count
-    error_message = "The number of public availability zones must match public_subnets_count."
+    condition     = length(var.public_availability_zones) == var.public_subnets_count && alltrue([for az in var.public_availability_zones : can(regex("^[a-z]{2}-[a-z]+-[0-9]{1}[a-z]$", az))])
+    error_message = "The number of public availability zones must match public_subnets_count and all must be valid AWS availability zones (e.g., us-east-1a, us-east-1b)."
   }
 }
 
 variable "private_availability_zones" {
-  description = "List of availability zones for private subnets"
+  description = "List of availability zones for private subnets. Must be valid AWS availability zones (e.g., us-east-1a, us-east-1b)."
   type        = list(string)
   validation {
-    condition     = length(var.private_availability_zones) == var.private_subnets_count
-    error_message = "The number of private availability zones must match private_subnets_count."
+    condition     = length(var.private_availability_zones) == var.private_subnets_count && alltrue([for az in var.private_availability_zones : can(regex("^[a-z]{2}-[a-z]+-[0-9]{1}[a-z]$", az))])
+    error_message = "The number of private availability zones must match private_subnets_count and all must be valid AWS availability zones (e.g., us-east-1a, us-east-1b)."
   }
 }
 
@@ -113,7 +113,7 @@ variable "create_nat_gateways" {
 }
 
 variable "cost_center" {
-  description = "Cost center tag for resource allocation and billing"
+  description = "Cost center tag for resource allocation and billing. Should be a non-empty string identifying the billing code or department."
   type        = string
   default     = "default-cost-center"
   validation {
@@ -123,7 +123,7 @@ variable "cost_center" {
 }
 
 variable "project" {
-  description = "Project tag for resource organization"
+  description = "Project tag for resource organization. Should be a non-empty string representing the project name or identifier."
   type        = string
   default     = "default-project"
   validation {
@@ -133,7 +133,7 @@ variable "project" {
 }
 
 variable "region" {
-  description = "AWS region for resource deployment"
+  description = "AWS region for resource deployment. Should be a valid AWS region string (e.g., us-east-1)."
   type        = string
   default     = "us-east-1"
   validation {
@@ -143,7 +143,7 @@ variable "region" {
 }
 
 variable "environment" {
-  description = "Environment tag for resource organization"
+  description = "Environment tag for resource organization. Should be a non-empty string indicating the deployment environment (e.g., dev, staging, prod)."
   type        = string
   default     = "dev"
   validation {
@@ -153,7 +153,7 @@ variable "environment" {
 }
 
 variable "owner" {
-  description = "Owner tag for resource management"
+  description = "Owner tag for resource management. Should be a non-empty string indicating the responsible person or team."
   type        = string
   default     = "unknown"
   validation {
