@@ -1,23 +1,23 @@
 # Updated VPC Configuration
 
 resource "aws_vpc" "novapay" {
-  cidr_block           = "10.0.0.0/20"  # Adjusted CIDR block for future growth
+  cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
-  tags = { Name = "novapay-vpc", Environment = var.environment }
+  tags = { Name = "novapay-vpc", Environment = var.environment, Module = "VPC" }
 }
 
 # Public Subnets
 resource "aws_subnet" "public" {
-  count             = 3  # Increased count for additional public subnet
+  count             = var.public_subnets_count
   vpc_id            = aws_vpc.novapay.id
-  cidr_block        = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"][count.index]
+  cidr_block        = var.public_subnets[count.index]
   availability_zone = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 }
 
 # Private Subnets
 resource "aws_subnet" "private" {
-  count             = 4  # Increased count for additional private subnets
+  count             = var.private_subnets_count
   vpc_id            = aws_vpc.novapay.id
   cidr_block        = var.private_subnets[count.index]
   availability_zone = var.availability_zones[count.index]
@@ -40,20 +40,20 @@ resource "aws_route_table" "public" {
 
 # Associate Public Subnets with Route Table
 resource "aws_route_table_association" "public" {
-  count          = 3  # Updated count to match the number of public subnets
+  count          = var.public_subnets_count
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
 # NAT Gateway for Private Subnets
 resource "aws_nat_gateway" "nat" {
-  count       = length(var.availability_zones)  # Create a NAT Gateway for each AZ
+  count       = length(var.availability_zones)
   allocation_id = aws_eip.nat[count.index].id
   subnet_id    = aws_subnet.public[count.index].id
 }
 
 resource "aws_eip" "nat" {
-  count = length(var.availability_zones)  # Create an EIP for each NAT Gateway
+  count = length(var.availability_zones)
   vpc = true
 }
 
@@ -63,13 +63,13 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat[count.index].id  # Updated to use NAT Gateway
+    nat_gateway_id = aws_nat_gateway.nat[count.index].id
   }
 }
 
 # Associate Private Subnets with Route Table
 resource "aws_route_table_association" "private" {
-  count          = 4  # Updated count to match the number of private subnets
+  count          = var.private_subnets_count
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
@@ -77,6 +77,6 @@ resource "aws_route_table_association" "private" {
 # Enable VPC Flow Logs with filtering
 resource "aws_flow_log" "vpc_flow_logs" {
   log_group_name = "vpc-flow-logs"
-  traffic_type   = "ACCEPT"  # Changed to log only accepted traffic
+  traffic_type   = "ACCEPT"
   vpc_id         = aws_vpc.novapay.id
 }
