@@ -75,9 +75,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets
+# NAT Gateway for Private Subnets (reduced count)
 resource "aws_nat_gateway" "nat" {
-  count         = length(var.availability_zones)
+  count         = var.nat_gateway_count
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   tags = {
@@ -89,7 +89,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_eip" "nat" {
-  count = length(var.availability_zones)
+  count = var.nat_gateway_count
   vpc   = true
   tags = {
     Name        = "novapay-nat-eip-${count.index}"
@@ -99,7 +99,7 @@ resource "aws_eip" "nat" {
   }
 }
 
-# Route Table for Private Subnets
+# Route Table for Private Subnets (updated to use mod to map NAT Gateway index)
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.novapay.id
   tags = {
@@ -112,7 +112,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat[count.index].id
+    nat_gateway_id = aws_nat_gateway.nat[count.index % var.nat_gateway_count].id
   }
 }
 
@@ -123,8 +123,9 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Enable VPC Flow Logs with filtering
+# Enable or disable VPC Flow Logs based on variable
 resource "aws_flow_log" "vpc_flow_logs" {
+  count          = var.enable_flow_logs ? 1 : 0
   log_group_name = var.flow_log_group_name
   traffic_type   = var.flow_log_traffic_type
   vpc_id         = aws_vpc.novapay.id
