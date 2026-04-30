@@ -43,3 +43,29 @@ variable "vpc_cidr_block" {
     error_message = "The CIDR block format is invalid. Please use CIDR notation (e.g., 10.0.0.0/22) and ensure it does not overlap with existing CIDR blocks."
   }
 }
+
+variable "nat_strategy" {
+  description = "NAT strategy: 'gateway' for NAT Gateway, 'instance' for NAT Instance"
+  type        = string
+  default     = "gateway"
+  validation {
+    condition     = contains(["gateway", "instance"], var.nat_strategy)
+    error_message = "nat_strategy must be either 'gateway' or 'instance'"
+  }
+}
+
+variable "nat_gateway_count" {
+  description = "Number of NAT gateways to create (when nat_strategy is 'gateway'). Must be between 1 and the number of availability zones."
+  type        = number
+  default     = 1
+  validation {
+    condition     = var.nat_gateway_count >= 1
+    error_message = "nat_gateway_count must be at least 1"
+  }
+}
+
+variable "availability_zones" {
+  description = "List of availability zones to use"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
+}
