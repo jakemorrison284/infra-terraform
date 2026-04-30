@@ -1,18 +1,20 @@
 variable "private_subnets" {
   type        = list(string)
-  description = "List of CIDR blocks for private subnets within the VPC"
+  description = "List of CIDR blocks for private subnets within the VPC. CIDRs must be within the VPC CIDR block and should not overlap each other."
   validation {
-    condition     = alltrue([for cidr in var.private_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
-    error_message = "All private subnet CIDR blocks must be within the VPC CIDR block."
+    condition = alltrue([for cidr in var.private_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)]) &&
+      length(var.private_subnets) == length(distinct(var.private_subnets))
+    error_message = "All private subnet CIDR blocks must be within the VPC CIDR block and must not overlap each other."
   }
 }
 
 variable "public_subnets" {
   type        = list(string)
-  description = "List of CIDR blocks for public subnets within the VPC"
+  description = "List of CIDR blocks for public subnets within the VPC. CIDRs must be within the VPC CIDR block and should not overlap each other."
   validation {
-    condition     = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)])
-    error_message = "The length of public_subnets list must match public_subnets_count and all CIDR blocks must be within the VPC CIDR block."
+    condition = length(var.public_subnets) == var.public_subnets_count && alltrue([for cidr in var.public_subnets : can(cidrhost(cidr, 0)) && cidrsubnet(cidr, 0, 0) == cidrsubnet(var.vpc_cidr_block, 0, 0)]) &&
+      length(var.public_subnets) == length(distinct(var.public_subnets))
+    error_message = "The length of public_subnets list must match public_subnets_count and all CIDR blocks must be within the VPC CIDR block without overlap."
   }
 }
 
@@ -27,12 +29,12 @@ variable "public_subnets_count" {
 }
 
 variable "private_subnets_count" {
-  description = "Number of private subnets (must be greater than 0)"
+  description = "Number of private subnets (must be between 1 and 10)"
   type        = number
   default     = 2
   validation {
-    condition     = (var.private_subnets_count > 0)
-    error_message = "The number of private subnets must be greater than 0. Please specify a count of at least 1."
+    condition = (var.private_subnets_count >= 1 && var.private_subnets_count <= 10) && var.private_subnets_count == length(var.private_subnets)
+    error_message = "The number of private subnets must be between 1 and 10 and match the length of the private_subnets list."
   }
 }
 
@@ -101,8 +103,8 @@ variable "nat_gateway_count" {
   type        = number
   default     = 1
   validation {
-    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count
-    error_message = "nat_gateway_count must be greater than 0 and less than or equal to public_subnets_count"
+    condition     = var.nat_gateway_count > 0 && var.nat_gateway_count <= var.public_subnets_count && var.nat_gateway_count <= 3
+    error_message = "nat_gateway_count must be greater than 0, less than or equal to public_subnets_count, and no more than 3."
   }
 }
 
@@ -113,22 +115,22 @@ variable "create_nat_gateways" {
 }
 
 variable "cost_center" {
-  description = "Cost center tag for resource allocation and billing. Should be a non-empty string identifying the billing code or department."
+  description = "Cost center tag for resource allocation and billing. Should be a non-empty string identifying the billing code or department. Allowed characters are letters, numbers, hyphens, and underscores."
   type        = string
   default     = "default-cost-center"
   validation {
-    condition     = length(trimspace(var.cost_center)) > 0
-    error_message = "cost_center cannot be empty"
+    condition     = length(trimspace(var.cost_center)) > 0 && can(regex("^[a-zA-Z0-9-_]+$", var.cost_center))
+    error_message = "cost_center cannot be empty and must only contain letters, numbers, hyphens, and underscores."
   }
 }
 
 variable "project" {
-  description = "Project tag for resource organization. Should be a non-empty string representing the project name or identifier."
+  description = "Project tag for resource organization. Should be a non-empty string representing the project name or identifier. Allowed characters are letters, numbers, hyphens, and underscores."
   type        = string
   default     = "default-project"
   validation {
-    condition     = length(trimspace(var.project)) > 0
-    error_message = "project cannot be empty"
+    condition     = length(trimspace(var.project)) > 0 && can(regex("^[a-zA-Z0-9-_]+$", var.project))
+    error_message = "project cannot be empty and must only contain letters, numbers, hyphens, and underscores."
   }
 }
 
