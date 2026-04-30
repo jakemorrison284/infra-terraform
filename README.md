@@ -85,32 +85,50 @@ The stable state of the VPC module is represented by the above commit SHAs. Roll
 
 ## Rollback Failure Mode for VPC Module Enhancements
 
-### Description
+### Description  
 The recent enhancements to the VPC module introduced changes to subnet configurations, routing, NAT gateways, and flow logs. These changes were rolled back due to issues identified during rollback review, which necessitated returning to the previous stable state.
 
-### Failure Mode Symptoms
-- Potential misconfigurations causing connectivity issues in VPC subnets.
-- Incorrect or missing NAT gateway setups leading to failed outbound internet access for private subnets.
-- Flow log configurations causing unexpected logging behavior or costs.
-- Terraform plan/apply failures due to variable validation errors or resource conflicts.
+### Failure Mode Symptoms and Examples
+- **Connectivity Issues in VPC Subnets:**  
+  Example: Instances in private subnets are unable to communicate with other subnets or the internet. This could manifest as failed API calls or timeouts.  
+  Reference: [AWS VPC Connectivity Troubleshooting](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Connectivity.html)
+
+- **Incorrect or Missing NAT Gateway Setups:**  
+  Example: Private subnet instances fail to access the internet for software updates or external API calls due to missing or misconfigured NAT gateways.  
+  Reference: [AWS NAT Gateway Overview](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)
+
+- **Flow Log Configuration Issues:**  
+  Example: Unexpected high logging costs or missing flow log data caused by incorrect retention policies or misconfigured flow log resources.  
+  Reference: [AWS VPC Flow Logs](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html)
+
+- **Terraform Plan/Apply Failures:**  
+  Example: Terraform apply fails with validation errors related to subnet counts, CIDR blocks, or resource conflicts.  
+  Reference: [Terraform Error Handling](https://www.terraform.io/language/errors)
 
 ### Root Causes
-- Unintended changes in CIDR blocks or subnet counts.
-- Mismatched availability zones and subnet counts.
-- Incorrect conditional logic for NAT gateway creation.
-- Flow log resource misconfiguration or retention policy errors.
+- Unintended changes in CIDR blocks or subnet counts causing IP conflicts or capacity issues.
+- Mismatched availability zones and subnet counts leading to uneven distribution or resource creation failures.
+- Incorrect conditional logic for NAT gateway creation causing missing or surplus gateways.
+- Flow log resource misconfiguration or retention policy errors causing unexpected behavior.
 
 ### Mitigation and Rollback Approach
-- Immediate rollback to the stable commit versions of main.tf and variables.tf.
+- Immediate rollback to stable commit versions of `main.tf` and `variables.tf` as documented.
 - Follow documented rollback procedure including Terraform apply and validation steps.
-- Enhanced validation added in variables.tf to prevent invalid inputs.
+- Enhanced validation added in `variables.tf` to prevent invalid inputs.
 - Close monitoring post-rollback for any residual issues.
 
+### Operational Responsibilities
+- **Infrastructure Team:** Responsible for executing rollback script, validating infrastructure state, and monitoring post-rollback.
+- **QA Team:** Perform integration and smoke tests on dependent services following rollback.
+- **Monitoring Team:** Configure and monitor alerts for connectivity, NAT gateway health, flow logs, and Terraform execution statuses.
+- **Incident Response:** Ready to respond to any anomalies detected post-rollback and coordinate with relevant teams.
+
 ### Recommendations for Future Changes
-- Thorough testing in isolated environments.
-- Incremental changes with feature toggles.
+- Thorough testing in isolated environments before production deployment.
+- Incremental changes with feature toggles to reduce blast radius.
 - Clear rollback plan with documented stable commit references.
 - Peer reviews focused on critical infrastructure modules.
+- Implement automated tests and monitoring alerts for early detection of failure modes.
 
 ---
 
