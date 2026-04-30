@@ -1,18 +1,28 @@
-# Updated VPC Configuration
-
 resource "aws_vpc" "novapay" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
-  tags = { Name = "novapay-vpc", Environment = var.environment, Module = "VPC" }
+  tags = {
+    Name        = "novapay-vpc"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
 }
 
 # Public Subnets
 resource "aws_subnet" "public" {
-  count             = var.public_subnets_count
-  vpc_id            = aws_vpc.novapay.id
-  cidr_block        = var.public_subnets[count.index]
-  availability_zone = var.availability_zones[count.index]
+  count                   = var.public_subnets_count
+  vpc_id                  = aws_vpc.novapay.id
+  cidr_block              = var.public_subnets[count.index]
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
+  tags = {
+    Name        = "novapay-public-subnet-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Tier        = "Public"
+    Owner       = var.owner
+  }
 }
 
 # Private Subnets
@@ -21,16 +31,36 @@ resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.novapay.id
   cidr_block        = var.private_subnets[count.index]
   availability_zone = var.availability_zones[count.index]
+  tags = {
+    Name        = "novapay-private-subnet-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Tier        = "Private"
+    Owner       = var.owner
+  }
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.novapay.id
+  tags = {
+    Name        = "novapay-igw"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
 }
 
 # Route Table for Public Subnets
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.novapay.id
+  tags = {
+    Name        = "novapay-public-rt"
+    Environment = var.environment
+    Module      = "VPC"
+    Tier        = "Public"
+    Owner       = var.owner
+  }
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -47,22 +77,41 @@ resource "aws_route_table_association" "public" {
 
 # NAT Gateway for Private Subnets
 resource "aws_nat_gateway" "nat" {
-  count       = length(var.availability_zones)
+  count         = length(var.availability_zones)
   allocation_id = aws_eip.nat[count.index].id
-  subnet_id    = aws_subnet.public[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+  tags = {
+    Name        = "novapay-nat-gw-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
 }
 
 resource "aws_eip" "nat" {
   count = length(var.availability_zones)
-  vpc = true
+  vpc   = true
+  tags = {
+    Name        = "novapay-nat-eip-${count.index}"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
 }
 
 # Route Table for Private Subnets
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.novapay.id
+  tags = {
+    Name        = "novapay-private-rt"
+    Environment = var.environment
+    Module      = "VPC"
+    Tier        = "Private"
+    Owner       = var.owner
+  }
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat[count.index].id
   }
 }
@@ -76,7 +125,13 @@ resource "aws_route_table_association" "private" {
 
 # Enable VPC Flow Logs with filtering
 resource "aws_flow_log" "vpc_flow_logs" {
-  log_group_name = "vpc-flow-logs"
-  traffic_type   = "ACCEPT"
+  log_group_name = var.flow_log_group_name
+  traffic_type   = var.flow_log_traffic_type
   vpc_id         = aws_vpc.novapay.id
+  tags = {
+    Name        = "novapay-flow-logs"
+    Environment = var.environment
+    Module      = "VPC"
+    Owner       = var.owner
+  }
 }
