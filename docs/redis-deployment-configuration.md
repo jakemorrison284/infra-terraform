@@ -6,7 +6,7 @@ This document outlines the configuration and deployment procedures for the Redis
 ## Redis Configuration
 
 ### Version
-- Upgraded Redis version from **X.X.X** to **Y.Y.Y**.
+- Upgraded Redis version from **6.2.0** to **7.0.0**.
 
 ### Configuration Changes
 - Updated the Redis version references in configuration files.
