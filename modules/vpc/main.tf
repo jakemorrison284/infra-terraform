@@ -168,4 +168,3 @@ resource "aws_flow_log" "vpc_flow_logs" {
     Project     = var.project
   }
 }
-
