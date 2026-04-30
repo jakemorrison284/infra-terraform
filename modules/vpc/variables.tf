@@ -39,7 +39,7 @@ variable "private_subnets_count" {
 }
 
 variable "vpc_cidr_block" {
-  description = "CIDR block for the VPC (should follow CIDR notation and not overlap with existing CIDR blocks)"
+  description = "CIDR block for the VPC (should follow CIDR notation and not overlap with existing CIDR blocks). Example: 10.0.0.0/22"
   type        = string
   default     = "10.0.0.0/22"
   validation {
@@ -83,7 +83,7 @@ variable "flow_log_group_name" {
 }
 
 variable "flow_log_retention_days" {
-  description = "Retention period for CloudWatch Log Group in days"
+  description = "Retention period for CloudWatch Log Group in days. Supported values: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653."
   type        = number
   default     = 30
   validation {
@@ -119,7 +119,7 @@ variable "create_nat_gateways" {
 }
 
 variable "cost_center" {
-  description = "Cost center tag for resource allocation and billing. Should be a non-empty string identifying the billing code or department. Allowed characters are letters, numbers, hyphens, and underscores."
+  description = "Cost center tag for resource allocation and billing. Should be a non-empty string identifying the billing code or department. Allowed characters are letters, numbers, hyphens, and underscores. Example: finance_dept"
   type        = string
   default     = "default-cost-center"
   validation {
@@ -129,7 +129,7 @@ variable "cost_center" {
 }
 
 variable "project" {
-  description = "Project tag for resource organization. Should be a non-empty string representing the project name or identifier. Allowed characters are letters, numbers, hyphens, and underscores."
+  description = "Project tag for resource organization. Should be a non-empty string representing the project name or identifier. Allowed characters are letters, numbers, hyphens, and underscores. Example: my_project_123"
   type        = string
   default     = "default-project"
   validation {
