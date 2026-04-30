@@ -83,4 +83,35 @@ The stable state of the VPC module is represented by the above commit SHAs. Roll
 
 ---
 
+## Rollback Failure Mode for VPC Module Enhancements
+
+### Description
+The recent enhancements to the VPC module introduced changes to subnet configurations, routing, NAT gateways, and flow logs. These changes were rolled back due to issues identified during rollback review, which necessitated returning to the previous stable state.
+
+### Failure Mode Symptoms
+- Potential misconfigurations causing connectivity issues in VPC subnets.
+- Incorrect or missing NAT gateway setups leading to failed outbound internet access for private subnets.
+- Flow log configurations causing unexpected logging behavior or costs.
+- Terraform plan/apply failures due to variable validation errors or resource conflicts.
+
+### Root Causes
+- Unintended changes in CIDR blocks or subnet counts.
+- Mismatched availability zones and subnet counts.
+- Incorrect conditional logic for NAT gateway creation.
+- Flow log resource misconfiguration or retention policy errors.
+
+### Mitigation and Rollback Approach
+- Immediate rollback to the stable commit versions of main.tf and variables.tf.
+- Follow documented rollback procedure including Terraform apply and validation steps.
+- Enhanced validation added in variables.tf to prevent invalid inputs.
+- Close monitoring post-rollback for any residual issues.
+
+### Recommendations for Future Changes
+- Thorough testing in isolated environments.
+- Incremental changes with feature toggles.
+- Clear rollback plan with documented stable commit references.
+- Peer reviews focused on critical infrastructure modules.
+
+---
+
 For any questions or issues, please contact the infrastructure team.
