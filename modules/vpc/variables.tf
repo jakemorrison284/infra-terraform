@@ -65,3 +65,21 @@ variable "create_nat_gateways" {
   type        = bool
   default     = true
 }
+
+variable "use_nat_instances" {
+  description = "Whether to use NAT instances instead of NAT Gateways for cost savings"
+  type        = bool
+  default     = false
+}
+
+variable "public_subnet_mask" {
+  description = "CIDR mask for public subnets (e.g., 24 for /24)"
+  type        = number
+  default     = 24
+}
+
+variable "private_subnet_mask" {
+  description = "CIDR mask for private subnets (e.g., 24 for /24)"
+  type        = number
+  default     = 24
+}
