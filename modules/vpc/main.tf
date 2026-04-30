@@ -75,9 +75,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for Private Subnets (reduced count)
+# NAT Gateway for Private Subnets (reduced count and conditional creation)
 resource "aws_nat_gateway" "nat" {
-  count         = var.nat_gateway_count
+  count         = var.create_nat_gateways ? var.nat_gateway_count : 0
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
   tags = {
@@ -89,7 +89,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_eip" "nat" {
-  count = var.nat_gateway_count
+  count = var.create_nat_gateways ? var.nat_gateway_count : 0
   vpc   = true
   tags = {
     Name        = "novapay-nat-eip-${count.index}"
@@ -99,7 +99,7 @@ resource "aws_eip" "nat" {
   }
 }
 
-# Route Table for Private Subnets (updated to use mod to map NAT Gateway index)
+# Route Table for Private Subnets (updated to use mod to map NAT Gateway index, conditional NAT Gateway)
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.novapay.id
   tags = {
@@ -111,8 +111,8 @@ resource "aws_route_table" "private" {
   }
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat[count.index % var.nat_gateway_count].id
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = var.create_nat_gateways ? aws_nat_gateway.nat[count.index % var.nat_gateway_count].id : null
   }
 }
 
