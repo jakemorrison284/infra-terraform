@@ -1,4 +1,3 @@
-# Release v0.2.0
+# Release 1.0.0
 
-- Update release notes for v0.2.0
-- Various optimizations and enhancements.
+Initial release of the infra-terraform module.
