@@ -1,7 +1,6 @@
-# Rollback Changes
+# Rollback to commit f75bd8bdca
 
-This rollback reverts the changes made in commit 51426a22c3edfb8264bbe0ce063b081ce0ccf5c8.
+This commit reverts the changes made in commit f75bd8bdcac2b9196ff9e3f85bba3f4c06032095.
 
-# Rollback Details
-
-- Reverted changes from commit 51426a22c3edfb8264bbe0ce063b081ce0ccf5c8.
+## Changes Reverted
+- [List changes that are reverted]
