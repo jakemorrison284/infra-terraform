@@ -1,3 +1,3 @@
-# Release v1.0.0
+# Release v1.0.1
 
-This is the first release of infra-terraform.
+This release includes bug fixes and improvements based on the previous version.
