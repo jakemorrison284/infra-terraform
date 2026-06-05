@@ -1,7 +1,3 @@
-# Rollback Changes
+# Rollback to commit d6f6da23ca12ef6c073fedf29b2fd928c85
 
-This rollback reverts the changes made in commit 51426a22c3edfb8264bbe0ce063b081ce0ccf5c8.
-
-# Rollback Details
-
-- Reverted changes from commit 51426a22c3edfb8264bbe0ce063b081ce0ccf5c8.
+This rollback reverts the changes made in commit d6f6da23ca12ef6c073fedf29b2fd928c85.
